@@ -4,11 +4,14 @@ import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import { fetchAPI, insertWithBodyAPI } from "@/utility";
 import Modal from "@/components/Modal";
+import { SkeletonLoading } from "@/components/SkeletonLoading";
+import LoadingModal from "@/components/LoadingModal";
 
 export default function UserList() {
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
   const [albums, setAlbums] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ title: "", body: "" });
   const router = useRouter();
@@ -51,6 +54,7 @@ export default function UserList() {
 
   useEffect(() => {
     if (!routerIsReady) return;
+    setIsLoading(true);
     const fetchUsers = async () => {
       const u = await fetchAPI(`users/${id}`);
       setUser(u);
@@ -66,10 +70,12 @@ export default function UserList() {
     fetchUsers();
     fetchPostsByUser();
     fetchAlbumsByUser();
+    setIsLoading(false);
   }, [routerIsReady]);
 
   return (
     <div className="px-24">
+      {isLoading && <LoadingModal />}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <form onSubmit={handleSubmit}>
           <label className="block mb-2">
